@@ -970,7 +970,7 @@ websearch_to_tsquery(<optional> <replaceable class="parameter">config</replaceab
     Unlike <function>plainto_tsquery</function>
     and <function>phraseto_tsquery</function>, it also recognizes certain
     operators. Moreover, this function should never raise syntax errors,
-    which makes it possible to use raw user-supplied input for search.
+    which makes it possible to use raw user-supplied input for search. 
     The following syntax is supported:
     <itemizedlist  spacing="compact" mark="bullet">
      <listitem>
@@ -1000,8 +1000,16 @@ websearch_to_tsquery(<optional> <replaceable class="parameter">config</replaceab
        the <literal>!</literal> operator.
       </para>
      </listitem>
+     <listitem>
     </itemizedlist>
+    Operators other than specified are treated as word dividers and 
+    converted to <literal>&amp;</literal> and <literal>&lt;-&gt;</literal>.
+    The same applies to <literal>:</literal> operator. So unlike 
+    <function>to_tsquery</function>, <function>websearch_to_tsquery</function>
+    doesn't support weight(s) marks for words.
    </para>
+   
+   
    <para>
     Examples:
 <screen>
@@ -1034,6 +1042,13 @@ SELECT websearch_to_tsquery('english', '""" )( dummy \\ query &lt;-&gt;');
 ----------------------
  'dummi' &amp; 'queri'
 (1 row)
+
+select websearch_to_tsquery('english', '"Automated:CAD" software(client)');
+           websearch_to_tsquery
+------------------------------------------
+ 'autom' <-> 'cad' & 'softwar' & 'client'
+(1 row)
+
 </screen>
     </para>
   </sect2>
